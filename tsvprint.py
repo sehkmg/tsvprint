@@ -83,7 +83,7 @@ with open(args.file_name, 'r') as f:
 
             if data_type[idx][0] == 'float':
                 if data_type[idx][1]:
-                    length = len(comp.split('.')[0]) + 4
+                    length = len(comp.split('.')[0]) + 1 + args.float_prec
                 else:
                     length = 7 + args.float_prec
 

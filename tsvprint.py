@@ -18,8 +18,11 @@ parser = argparse.ArgumentParser('tsvprint')
 parser.add_argument('--file_name', type=str)
 parser.add_argument('--float_prec', type=int, default=3)
 parser.add_argument('--float_max_len', type=int, default=10)
+parser.add_argument('--header_freq', type=int, default=-1, help='-1 not to print header in the middle.')
+
 parser.add_argument('--head', type=int, default=-1, help='-1 to print all.')
 parser.add_argument('--tail', type=int, default=-1, help='-1 to print all.')
+
 parser.add_argument('--print_interval', type=float, default=-1, help='-1 to print once.')
 args = parser.parse_args()
 
@@ -37,11 +40,13 @@ float_min = float('1e-{}'.format(args.float_prec))
 check_int = re.compile('[-+]?[0-9]+$')
 check_float = re.compile('[-+]?[0-9]+\.[0-9]+([eE][-+]?[0-9]+)?$')
 
+line_count = 0
 
 # check modification time and get lines
 mtime = os.path.getmtime(args.file_name)
 with open(args.file_name, 'r') as f:
     lines = f.readlines()
+    printed_lines_num = len(lines)
 
     # get header
     header = lines[0].strip().split('\t')
@@ -93,6 +98,7 @@ with open(args.file_name, 'r') as f:
 
     # make header string and print header
     header_str = ('| ' + ' | '.join(['{{:>{}}}'.format(length) for length in max_len]) + ' |').format(*header)
+    print('-'*len(header_str))
     print(header_str)
     print('-'*len(header_str))
 
@@ -122,6 +128,14 @@ with open(args.file_name, 'r') as f:
                     format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
 
         format_str = ('| ' + ' | '.join(format_str) + ' |')
+
+        # print header for certain frequency
+        line_count += 1
+        if args.header_freq > 0 and line_count % args.header_freq == 0:
+            print('-'*len(header_str))
+            print(header_str)
+            print('-'*len(header_str))
+
         print(format_str.format(*split_line))
 
 # coutinue printing when the file is modified
@@ -132,36 +146,46 @@ if args.print_interval > 0:
             # store modification time
             mtime = os.path.getmtime(args.file_name)
 
-            # print last line
+            # print added line
             with open(args.file_name, 'r') as f:
                 lines = f.readlines()
-                line = lines[-1]
+                lines2print = lines[printed_lines_num:]
+                printed_lines_num = len(lines)
 
-                split_line = line.strip().split('\t')
-                format_str = []
+                for line in lines2print:
+                    split_line = line.strip().split('\t')
+                    format_str = []
 
-                for idx, dtype in enumerate(data_type):
-                    if dtype == 'int':
-                        # str to int
-                        split_line[idx] = int(split_line[idx])
-                        # make format string
-                        format_str.append('{{:{}}}'.format(max_len[idx]))
-                    elif dtype == 'string':
-                        # make format string
-                        format_str.append('{{:>{}}}'.format(max_len[idx]))
-                    elif dtype == 'float':
-                        # str to float
-                        split_line[idx] = float(split_line[idx])
-                        # make format string
-                        if float_min <= float(split_line[idx]) and float(split_line[idx]) < float_max:
-                            format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
-                        elif -float_max < float(split_line[idx]) and float(split_line[idx]) <= -float_min:
-                            format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
-                        else:
-                            format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
+                    for idx, dtype in enumerate(data_type):
+                        if dtype == 'int':
+                            # str to int
+                            split_line[idx] = int(split_line[idx])
+                            # make format string
+                            format_str.append('{{:{}}}'.format(max_len[idx]))
+                        elif dtype == 'string':
+                            # make format string
+                            format_str.append('{{:>{}}}'.format(max_len[idx]))
+                        elif dtype == 'float':
+                            # str to float
+                            split_line[idx] = float(split_line[idx])
+                            # make format string
+                            if float_min <= float(split_line[idx]) and float(split_line[idx]) < float_max:
+                                format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
+                            elif -float_max < float(split_line[idx]) and float(split_line[idx]) <= -float_min:
+                                format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
+                            else:
+                                format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
 
-                format_str = ('| ' + ' | '.join(format_str) + ' |')
-                print(format_str.format(*split_line))
+                    format_str = ('| ' + ' | '.join(format_str) + ' |')
+
+                    # print header for certain frequency
+                    line_count += 1
+                    if args.header_freq > 0 and line_count % args.header_freq == 0:
+                        print('-'*len(header_str))
+                        print(header_str)
+                        print('-'*len(header_str))
+
+                    print(format_str.format(*split_line))
 
         time.sleep(args.print_interval)
 

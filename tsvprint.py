@@ -50,27 +50,20 @@ with open(args.file_name, 'r') as f:
         lines = lines[-args.tail:]
 
 
-    # get data type and float formatting from random line
+    # get data type from first line
     data_type = []
 
-    ran_idx = random.randint(0, len(lines)-1)
-    random_line = lines[ran_idx].strip().split('\t')
+    first_line = lines[0].strip().split('\t')
 
-    for comp in random_line:
+    for comp in first_line:
         if check_int.match(comp):
-            data_type.append(('int', True))
+            data_type.append('int')
 
         elif check_float.match(comp):
-            if float_min <= float(comp) and float(comp) < float_max:
-                data_type.append(('float', True))
-            elif -float_max < float(comp) and float(comp) <= -float_min:
-                data_type.append(('float', True))
-
-            else:
-                data_type.append(('float', False))
+            data_type.append('float')
 
         else:
-            data_type.append(('string', True))
+            data_type.append('string')
 
     # compute max length for each component
     max_len = [len(h) for h in header]
@@ -81,30 +74,17 @@ with open(args.file_name, 'r') as f:
         for idx, comp in enumerate(split_line):
             length = len(comp)
 
-            if data_type[idx][0] == 'float':
-                if data_type[idx][1]:
+            if data_type[idx] == 'float':
+                # length depends on float formatting
+                if float_min <= float(comp) and float(comp) < float_max:
+                    length = len(comp.split('.')[0]) + 1 + args.float_prec
+                elif -float_max < float(comp) and float(comp) <= -float_min:
                     length = len(comp.split('.')[0]) + 1 + args.float_prec
                 else:
                     length = 7 + args.float_prec
 
             if length > max_len[idx]:
                 max_len[idx] = length
-
-    # make format string
-    format_str = []
-
-    for idx, dtype in enumerate(data_type):
-        if dtype[0] == 'int':
-            format_str.append('{{:{}}}'.format(max_len[idx]))
-        elif dtype[0] == 'string':
-            format_str.append('{{:>{}}}'.format(max_len[idx]))
-        elif dtype[0] == 'float':
-            if dtype[1]:
-                format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
-            else:
-                format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
-
-    format_str = ('| ' + ' | '.join(format_str) + ' |')
 
 
     # make header string and print header
@@ -115,11 +95,27 @@ with open(args.file_name, 'r') as f:
     # print formatted lines
     for line in lines:
         split_line = line.strip().split('\t')
+        format_str = []
 
         for idx, dtype in enumerate(data_type):
-            if dtype[0] == 'int':
+            if dtype == 'int':
+                # str to int
                 split_line[idx] = int(split_line[idx])
-            elif dtype[0] == 'float':
+                # make format string
+                format_str.append('{{:{}}}'.format(max_len[idx]))
+            elif dtype == 'string':
+                # make format string
+                format_str.append('{{:>{}}}'.format(max_len[idx]))
+            elif dtype == 'float':
+                # str to float
                 split_line[idx] = float(split_line[idx])
+                # make format string
+                if float_min <= float(split_line[idx]) and float(split_line[idx]) < float_max:
+                    format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
+                elif -float_max < float(split_line[idx]) and float(split_line[idx]) <= -float_min:
+                    format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
+                else:
+                    format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
 
+        format_str = ('| ' + ' | '.join(format_str) + ' |')
         print(format_str.format(*split_line))

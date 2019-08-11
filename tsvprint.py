@@ -93,7 +93,7 @@ with open(args.file_name, 'r') as f:
                 elif args.of_handling:
                     length = 7 + args.float_prec
                 elif float(comp) >= float_max:
-                    length = 4 #  inf
+                    length = 3 # inf
                 elif float(comp) <= -float_max:
                     length = 4 # -inf
                 else:
@@ -134,8 +134,8 @@ with open(args.file_name, 'r') as f:
                 elif args.of_handling:
                     format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
                 elif float(split_line[idx]) >= float_max:
-                    split_line[idx] = ' inf'
-                    format_str.append('{{:>{}}}'.format(max_len[idx])) #  inf
+                    split_line[idx] = 'inf'
+                    format_str.append('{{:>{}}}'.format(max_len[idx])) # inf
                 elif float(split_line[idx]) <= -float_max:
                     split_line[idx] = '-inf'
                     format_str.append('{{:>{}}}'.format(max_len[idx])) # -inf
@@ -191,8 +191,8 @@ if args.print_interval > 0:
                             elif args.of_handling:
                                 format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
                             elif float(split_line[idx]) >= float_max:
-                                split_line[idx] = ' inf'
-                                format_str.append('{{:>{}}}'.format(max_len[idx])) #  inf
+                                split_line[idx] = 'inf'
+                                format_str.append('{{:>{}}}'.format(max_len[idx])) # inf
                             elif float(split_line[idx]) <= -float_max:
                                 split_line[idx] = '-inf'
                                 format_str.append('{{:>{}}}'.format(max_len[idx])) # -inf

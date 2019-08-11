@@ -97,7 +97,7 @@ with open(args.file_name, 'r') as f:
                 elif float(comp) <= -float_max:
                     length = 4 # -inf
                 else:
-                    length = 3 + args.float_prec # -0.000
+                    length = len(comp.split('.')[0]) + 1 + args.float_prec # 0.000
 
             if length > max_len[idx]:
                 max_len[idx] = length
@@ -140,7 +140,7 @@ with open(args.file_name, 'r') as f:
                     split_line[idx] = '-inf'
                     format_str.append('{{:>{}}}'.format(max_len[idx])) # -inf
                 else:
-                    format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec)) # -0.000
+                    format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec)) # 0.000
 
         format_str = ('| ' + ' | '.join(format_str) + ' |')
 
@@ -197,7 +197,7 @@ if args.print_interval > 0:
                                 split_line[idx] = '-inf'
                                 format_str.append('{{:>{}}}'.format(max_len[idx])) # -inf
                             else:
-                                format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec)) # -0.000
+                                format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec)) # 0.000
 
                     format_str = ('| ' + ' | '.join(format_str) + ' |')
 

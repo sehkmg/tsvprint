@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser('tsvprint')
 parser.add_argument('--file_name', type=str)
 parser.add_argument('--float_prec', type=int, default=3)
 parser.add_argument('--float_max_len', type=int, default=10)
+parser.add_argument('--of_handling', type=str2bool, default=False)
 parser.add_argument('--header_freq', type=int, default=-1, help='-1 not to print header in the middle.')
 
 parser.add_argument('--head', type=int, default=-1, help='-1 to print all.')
@@ -89,8 +90,14 @@ with open(args.file_name, 'r') as f:
                     length = len(comp.split('.')[0]) + 1 + args.float_prec
                 elif -float_max < float(comp) and float(comp) <= -float_min:
                     length = len(comp.split('.')[0]) + 1 + args.float_prec
-                else:
+                elif args.of_handling:
                     length = 7 + args.float_prec
+                elif float(comp) >= float_max:
+                    length = 4 #  inf
+                elif float(comp) <= -float_max:
+                    length = 4 # -inf
+                else:
+                    length = 3 + args.float_prec # -0.000
 
             if length > max_len[idx]:
                 max_len[idx] = length
@@ -124,8 +131,16 @@ with open(args.file_name, 'r') as f:
                     format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
                 elif -float_max < float(split_line[idx]) and float(split_line[idx]) <= -float_min:
                     format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
-                else:
+                elif args.of_handling:
                     format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
+                elif float(split_line[idx]) >= float_max:
+                    split_line[idx] = ' inf'
+                    format_str.append('{{:>{}}}'.format(max_len[idx])) #  inf
+                elif float(split_line[idx]) <= -float_max:
+                    split_line[idx] = '-inf'
+                    format_str.append('{{:>{}}}'.format(max_len[idx])) # -inf
+                else:
+                    format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec)) # -0.000
 
         format_str = ('| ' + ' | '.join(format_str) + ' |')
 
@@ -173,8 +188,16 @@ if args.print_interval > 0:
                                 format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
                             elif -float_max < float(split_line[idx]) and float(split_line[idx]) <= -float_min:
                                 format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec))
-                            else:
+                            elif args.of_handling:
                                 format_str.append('{{:{}.{}e}}'.format(max_len[idx], args.float_prec))
+                            elif float(split_line[idx]) >= float_max:
+                                split_line[idx] = ' inf'
+                                format_str.append('{{:>{}}}'.format(max_len[idx])) #  inf
+                            elif float(split_line[idx]) <= -float_max:
+                                split_line[idx] = '-inf'
+                                format_str.append('{{:>{}}}'.format(max_len[idx])) # -inf
+                            else:
+                                format_str.append('{{:{}.{}f}}'.format(max_len[idx], args.float_prec)) # -0.000
 
                     format_str = ('| ' + ' | '.join(format_str) + ' |')
 

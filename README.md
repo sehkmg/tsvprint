@@ -2,7 +2,7 @@
 python script to print tsv file.
 
 ```
-usage: tsvprint.py [--file_name=PATH]
+usage: tsvprint.py [--file=PATH]
                    [--float_prec=P] [--float_max_len=M] [--of_handling=OF_HANDLING]
                    [--header_freq=FREQ]
                    [--head=N]

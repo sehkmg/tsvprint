@@ -15,7 +15,7 @@ def str2bool(v):
 
 # get arguments
 parser = argparse.ArgumentParser('tsvprint')
-parser.add_argument('--file_name', type=str)
+parser.add_argument('--file', type=str)
 parser.add_argument('--float_prec', type=int, default=3)
 parser.add_argument('--float_max_len', type=int, default=10)
 parser.add_argument('--of_handling', type=str2bool, default=False)
@@ -44,8 +44,8 @@ check_float = re.compile('[-+]?[0-9]+\.[0-9]+([eE][-+]?[0-9]+)?$')
 line_count = 0
 
 # check modification time and get lines
-mtime = os.path.getmtime(args.file_name)
-with open(args.file_name, 'r') as f:
+mtime = os.path.getmtime(args.file)
+with open(args.file, 'r') as f:
     lines = f.readlines()
     printed_lines_num = len(lines)
 
@@ -157,12 +157,12 @@ with open(args.file_name, 'r') as f:
 if args.print_interval > 0:
     while True:
         # check if the file is modified
-        if os.path.getmtime(args.file_name) > mtime:
+        if os.path.getmtime(args.file) > mtime:
             # store modification time
-            mtime = os.path.getmtime(args.file_name)
+            mtime = os.path.getmtime(args.file)
 
             # print added line
-            with open(args.file_name, 'r') as f:
+            with open(args.file, 'r') as f:
                 lines = f.readlines()
                 lines2print = lines[printed_lines_num:]
                 printed_lines_num = len(lines)

@@ -10,7 +10,7 @@ usage: tsvprint.py [--file=PATH]
                    [--print_interval=SEC]
 
 arguments:
-  --file_name=PATH           path to tsv file. (default: none)
+  --file=PATH           path to tsv file. (default: none)
   
   --float_prec=P             precision for printing float number. (default: 3)
   

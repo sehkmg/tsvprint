@@ -22,6 +22,7 @@ arguments:
 
 optional arguments:
   --header_freq=FREQ         how often to print header. (default: -1 (only once at the beginning.))
+  --select_cols              select columns by prompt.
 
   --float_prec=P             precision for printing float number. (default: 5)
   

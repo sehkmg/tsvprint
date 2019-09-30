@@ -16,24 +16,24 @@ def str2bool(v):
 # get arguments
 parser = argparse.ArgumentParser('tsvprint')
 parser.add_argument('--file', type=str)
-parser.add_argument('--float_prec', type=int, default=3)
-parser.add_argument('--float_max_len', type=int, default=10)
-parser.add_argument('--of_handling', type=str2bool, default=False)
-parser.add_argument('--header_freq', type=int, default=-1, help='-1 not to print header in the middle.')
 
 parser.add_argument('--head', type=int, default=-1, help='-1 to print all.')
 parser.add_argument('--tail', type=int, default=-1, help='-1 to print all.')
-
 parser.add_argument('--print_interval', type=float, default=-1, help='-1 to print once.')
+
+parser.add_argument('--header_freq', type=int, default=-1, help='-1 not to print header in the middle.')
+parser.add_argument('--float_prec', type=int, default=5)
+parser.add_argument('--float_max_len', type=int, default=11)
+parser.add_argument('--of_handling', type=str2bool, default=False)
 args = parser.parse_args()
 
 # assertion to handle not enough max length
-# Example: for float_prec=3, minimum length float string should be -0.000
+# Example: for float_prec=5, minimum length float string should be -0.00000
 assert args.float_max_len - args.float_prec - 2 > 0, "not enough float_max_len."
 
 # to determine whether to use e format
-# Example: for float_prec=3, float_max_len=9,
-# (-10000.000, -0.001] and [0.001, 10000.000)
+# Example: for float_prec=5, float_max_len=11,
+# (-10000.00000, -0.00001] and [0.00001, 10000.00000)
 float_max = float('1e+{}'.format(args.float_max_len - args.float_prec - 2))
 float_min = float('1e-{}'.format(args.float_prec))
 

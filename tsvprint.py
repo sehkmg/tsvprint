@@ -1,7 +1,6 @@
 import os
 import re
 import time 
-import random
 import argparse
 
 # str2bool type for argparse
@@ -22,6 +21,8 @@ parser.add_argument('--tail', type=int, default=-1, help='-1 to print all.')
 parser.add_argument('--print_interval', type=float, default=-1, help='-1 to print once.')
 
 parser.add_argument('--header_freq', type=int, default=-1, help='-1 not to print header in the middle.')
+parser.add_argument('--select_cols', action='store_true')
+
 parser.add_argument('--float_prec', type=int, default=5)
 parser.add_argument('--float_max_len', type=int, default=11)
 parser.add_argument('--of_handling', type=str2bool, default=False)
@@ -59,11 +60,22 @@ with open(args.file, 'r') as f:
     elif args.tail > 0:
         lines = lines[-args.tail:]
 
+    # select columns if necessary
+    col_idx = list(range(len(header)))
+    if args.select_cols:
+        for i, h in enumerate(header):
+            print('{}: {}'.format(i, h))
+
+        col_idx_str = input('Select columns: ')
+        col_idx = list(map(lambda x: int(x.strip()), col_idx_str.split(',')))
+
+    header = [header[k] for k in col_idx]
 
     # get data type from first line
     data_type = []
 
     first_line = lines[0].strip().split('\t')
+    first_line = [first_line[k] for k in col_idx]
 
     for comp in first_line:
         if check_int.match(comp):
@@ -80,6 +92,7 @@ with open(args.file, 'r') as f:
 
     for line in lines:
         split_line = line.strip().split('\t')
+        split_line = [split_line[k] for k in col_idx]
         
         for idx, comp in enumerate(split_line):
             length = len(comp)
@@ -112,6 +125,7 @@ with open(args.file, 'r') as f:
     # print formatted lines
     for line in lines:
         split_line = line.strip().split('\t')
+        split_line = [split_line[k] for k in col_idx]
         format_str = []
 
         for idx, dtype in enumerate(data_type):
@@ -169,6 +183,7 @@ if args.print_interval > 0:
 
                 for line in lines2print:
                     split_line = line.strip().split('\t')
+                    split_line = [split_line[k] for k in col_idx]
                     format_str = []
 
                     for idx, dtype in enumerate(data_type):
